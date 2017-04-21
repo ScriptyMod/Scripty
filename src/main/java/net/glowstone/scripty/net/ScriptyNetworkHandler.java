@@ -1,8 +1,13 @@
 package net.glowstone.scripty.net;
 
 import net.glowstone.scripty.ScriptLanguage;
+import net.glowstone.scripty.ScriptyBlock;
+import net.glowstone.scripty.ScriptyMod;
+import net.glowstone.scripty.gui.ScriptyBlockGUI;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
@@ -21,16 +26,25 @@ public class ScriptyNetworkHandler {
     @SideOnly(Side.CLIENT)
     public static void handleContentMessage(ScriptyPacketContent content) {
         // open gui with content
-        Minecraft.getMinecraft().player.sendChatMessage("content: \'" + content.getContent() + "\' of language " + content.getLanguage());
+        EntityPlayerSP player = Minecraft.getMinecraft().player;
+        player.openGui(ScriptyMod.INSTANCE, 0x0, player.world, content.getPos().getX(), content.getPos().getY(), content.getPos().getZ());
+        if (Minecraft.getMinecraft().currentScreen instanceof ScriptyBlockGUI) {
+            ((ScriptyBlockGUI) Minecraft.getMinecraft().currentScreen).setLanguage(content.getLanguage());
+        }
+        player.sendChatMessage("content: \'" + content.getContent() + "\' of language " + content.getLanguage());
     }
 
     @SideOnly(Side.SERVER)
-    public static void sendContentMessage(EntityPlayerMP player, String content, ScriptLanguage language) {
-        WRAPPER.sendTo(new ScriptyPacketContent(content, language), player);
+    public static void sendContentMessage(EntityPlayerMP player, BlockPos pos, String content, ScriptLanguage language) {
+        WRAPPER.sendTo(new ScriptyPacketContent(pos, content, language), player);
     }
 
     @SideOnly(Side.SERVER)
     public static void handleOpenRequest(BlockPos pos, EntityPlayerMP player) {
-        sendContentMessage(player, "server.broadcast(\"hello!\");", ScriptLanguage.JAVASCRIPT);
+        TileEntity te = player.world.getTileEntity(pos);
+        if (te instanceof ScriptyBlock.TEScriptyBlock) {
+            ScriptyBlock.TEScriptyBlock scriptyBlock = (ScriptyBlock.TEScriptyBlock) te;
+            sendContentMessage(player, pos, scriptyBlock.getContent(), scriptyBlock.getLanguage());
+        }
     }
 }
