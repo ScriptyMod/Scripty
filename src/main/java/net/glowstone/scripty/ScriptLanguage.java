@@ -1,5 +1,5 @@
 package net.glowstone.scripty;
 
 public enum ScriptLanguage {
-    JAVASCRIPT, PYTHON;
+    JAVASCRIPT, PYTHON, LUA
 }
