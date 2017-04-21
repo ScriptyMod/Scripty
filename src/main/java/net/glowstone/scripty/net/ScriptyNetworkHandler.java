@@ -26,14 +26,14 @@ public class ScriptyNetworkHandler {
 
     @SideOnly(Side.CLIENT)
     public static void handleContentMessage(ScriptyPacketContent content) {
-        // open gui with content
         EntityPlayerSP player = Minecraft.getMinecraft().player;
-        player.openGui(ScriptyMod.INSTANCE, 0x0, player.world, content.getPos().getX(), content.getPos().getY(), content.getPos().getZ());
+        if (!(Minecraft.getMinecraft().currentScreen instanceof ScriptyBlockGUI)) {
+            player.openGui(ScriptyMod.INSTANCE, 0x0, player.world, content.getPos().getX(), content.getPos().getY(), content.getPos().getZ());
+        }
         if (Minecraft.getMinecraft().currentScreen instanceof ScriptyBlockGUI) {
             ((ScriptyBlockGUI) Minecraft.getMinecraft().currentScreen).setLanguage(content.getLanguage());
             ((ScriptyBlockGUI) Minecraft.getMinecraft().currentScreen).setContent(content.getContent());
         }
-        player.sendChatMessage("content: \'" + content.getContent() + "\' of language " + content.getLanguage());
     }
 
     @SideOnly(Side.CLIENT)
@@ -43,7 +43,6 @@ public class ScriptyNetworkHandler {
 
     @SideOnly(Side.SERVER)
     public static void handleContentUpdate(ScriptyPacketContent content, EntityPlayerMP player) {
-        // open gui with content
         BlockPos pos = content.getPos();
         TileEntity entity = player.world.getTileEntity(pos);
         if (entity != null && entity instanceof ScriptyBlock.TEScriptyBlock) {

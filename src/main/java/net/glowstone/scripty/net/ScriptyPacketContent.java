@@ -78,7 +78,7 @@ public class ScriptyPacketContent implements IMessage {
         @Override
         public IMessage onMessage(ScriptyPacketContent message, MessageContext ctx) {
             ScriptyNetworkHandler.handleContentMessage(message);
-            return message;
+            return null;
         }
     }
 
@@ -86,7 +86,7 @@ public class ScriptyPacketContent implements IMessage {
         @Override
         public IMessage onMessage(ScriptyPacketContent message, MessageContext ctx) {
             ScriptyNetworkHandler.handleContentUpdate(message, ctx.getServerHandler().playerEntity);
-            return message;
+            return null;
         }
     }
 }

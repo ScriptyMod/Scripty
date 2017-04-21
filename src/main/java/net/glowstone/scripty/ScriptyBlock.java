@@ -41,7 +41,7 @@ public class ScriptyBlock extends BlockContainer {
             return false;
         }
         ScriptyNetworkHandler.handleOpenRequest(pos, (EntityPlayerMP) playerIn);
-        return false;
+        return true;
     }
 
     public String getName() {
