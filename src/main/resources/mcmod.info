@@ -1,0 +1,12 @@
+[
+    {
+      "modid": "scripty",
+      "name": "Scripty",
+      "description": "Run scripts in command blocks",
+      "version": "${version}",
+      "mcversion": "${mcversion}",
+      "url": "https://glowstone.net/",
+      "authorList": ["momothereal", "gdude2002"],
+      "credits": "The Glowstone Project"
+    }
+]

@@ -1,0 +1,6 @@
+{
+  "parent": "block/cube_all",
+  "textures": {
+    "all": "scripty:blocks/scripty_block"
+  }
+}
