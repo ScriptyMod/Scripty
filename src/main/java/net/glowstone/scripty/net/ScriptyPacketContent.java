@@ -74,10 +74,18 @@ public class ScriptyPacketContent implements IMessage {
         this.pos = pos;
     }
 
-    public static class Handler implements IMessageHandler<ScriptyPacketContent, IMessage> {
+    public static class HandlerClient implements IMessageHandler<ScriptyPacketContent, IMessage> {
         @Override
         public IMessage onMessage(ScriptyPacketContent message, MessageContext ctx) {
             ScriptyNetworkHandler.handleContentMessage(message);
+            return message;
+        }
+    }
+
+    public static class HandlerServer implements IMessageHandler<ScriptyPacketContent, IMessage> {
+        @Override
+        public IMessage onMessage(ScriptyPacketContent message, MessageContext ctx) {
+            ScriptyNetworkHandler.handleContentUpdate(message, ctx.getServerHandler().playerEntity);
             return message;
         }
     }

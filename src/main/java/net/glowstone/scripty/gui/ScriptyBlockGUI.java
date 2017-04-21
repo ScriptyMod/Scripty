@@ -1,8 +1,8 @@
 package net.glowstone.scripty.gui;
 
 import net.glowstone.scripty.ScriptLanguage;
-import net.glowstone.scripty.ScriptyBlock;
-import net.minecraft.client.Minecraft;
+import net.glowstone.scripty.net.ScriptyNetworkHandler;
+import net.glowstone.scripty.net.ScriptyPacketContent;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.BlockPos;
@@ -63,11 +63,8 @@ public class ScriptyBlockGUI extends GuiScreen {
 
     @Override
     public void onGuiClosed() {
-        ScriptyBlock.TEScriptyBlock te = (ScriptyBlock.TEScriptyBlock) Minecraft.getMinecraft().world.getTileEntity(pos);
-        te.setContent(getContent());
-        te.setLanguage(getLanguage());
-        te.updateContainingBlockInfo();
-        System.out.println("gui closed, updating TE");
+        // send update packet
+        ScriptyNetworkHandler.sendContentUpdate(new ScriptyPacketContent(pos, content, language));
     }
 
     @Override

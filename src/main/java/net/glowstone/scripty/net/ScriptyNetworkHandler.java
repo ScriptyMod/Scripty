@@ -20,7 +20,8 @@ public class ScriptyNetworkHandler {
 
     public static void init() {
         WRAPPER = NetworkRegistry.INSTANCE.newSimpleChannel("scripty");
-        WRAPPER.registerMessage(ScriptyPacketContent.Handler.class, ScriptyPacketContent.class, 0x00, Side.CLIENT);
+        WRAPPER.registerMessage(ScriptyPacketContent.HandlerClient.class, ScriptyPacketContent.class, 0x00, Side.CLIENT);
+        WRAPPER.registerMessage(ScriptyPacketContent.HandlerServer.class, ScriptyPacketContent.class, 0x01, Side.SERVER);
     }
 
     @SideOnly(Side.CLIENT)
@@ -30,8 +31,26 @@ public class ScriptyNetworkHandler {
         player.openGui(ScriptyMod.INSTANCE, 0x0, player.world, content.getPos().getX(), content.getPos().getY(), content.getPos().getZ());
         if (Minecraft.getMinecraft().currentScreen instanceof ScriptyBlockGUI) {
             ((ScriptyBlockGUI) Minecraft.getMinecraft().currentScreen).setLanguage(content.getLanguage());
+            ((ScriptyBlockGUI) Minecraft.getMinecraft().currentScreen).setContent(content.getContent());
         }
         player.sendChatMessage("content: \'" + content.getContent() + "\' of language " + content.getLanguage());
+    }
+
+    @SideOnly(Side.CLIENT)
+    public static void sendContentUpdate(ScriptyPacketContent content) {
+        WRAPPER.sendToServer(content);
+    }
+
+    @SideOnly(Side.SERVER)
+    public static void handleContentUpdate(ScriptyPacketContent content, EntityPlayerMP player) {
+        // open gui with content
+        BlockPos pos = content.getPos();
+        TileEntity entity = player.world.getTileEntity(pos);
+        if (entity != null && entity instanceof ScriptyBlock.TEScriptyBlock) {
+            ((ScriptyBlock.TEScriptyBlock) entity).setLanguage(content.getLanguage());
+            ((ScriptyBlock.TEScriptyBlock) entity).setContent(content.getContent());
+            entity.validate();
+        }
     }
 
     @SideOnly(Side.SERVER)
