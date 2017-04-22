@@ -15,9 +15,14 @@ version = "0.0.1"
 group = "net.glowstone.scripty" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "scripty"
 
-sourceCompatibility = targetCompatibility = "1.6" // Need this here so eclipse task generates correctly.
+sourceCompatibility = targetCompatibility = "1.8" // Need this here so eclipse task generates correctly.
 compileJava {
-    sourceCompatibility = targetCompatibility = "1.6"
+    sourceCompatibility = targetCompatibility = "1.8"
+}
+
+dependencies {
+    compile group: 'org.luaj', name: 'luaj-jse', version: '3.0.1'
+    compile group: 'org.python', name: 'jython-standalone', version: '2.7.1b3'
 }
 
 minecraft {
