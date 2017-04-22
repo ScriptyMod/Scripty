@@ -5,9 +5,11 @@ buildscript {
     }
     dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.2-SNAPSHOT'
+        classpath 'com.github.jengelman.gradle.plugins:shadow:1.2.4'
     }
 }
 apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'com.github.johnrengelman.shadow'
 //Only edit below this line, the above code adds and enables the necessary things for Forge to be setup.
 
 
@@ -23,6 +25,16 @@ compileJava {
 dependencies {
     compile group: 'org.luaj', name: 'luaj-jse', version: '3.0.1'
     compile group: 'org.python', name: 'jython-standalone', version: '2.7.1b3'
+}
+
+shadowJar {
+    dependencies {
+        include dependency('org.luaj:luaj-jse')
+        include dependency('org.python:jython-standalone')
+    }
+
+    relocate 'org.python', 'net.glowstone.scripty.libs.python'
+    relocate 'org.luaj', 'net.glowstone.scripty.libs.luaj'
 }
 
 minecraft {
