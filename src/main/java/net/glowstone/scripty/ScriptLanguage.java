@@ -3,7 +3,7 @@ package net.glowstone.scripty;
 import javax.script.ScriptEngine;
 
 public enum ScriptLanguage {
-    JAVASCRIPT("JavaScript", "print(\"Hello, world!\")", "js"), PYTHON("Python", "print(\"Hello, world!\")", "js"), LUA("LUA", "print(\"Hello, world!\")", "lua");
+    JAVASCRIPT("JavaScript", "print(\"Hello, world!\")", "js"), PYTHON("Python", "print(\"Hello, world!\")", "py"), LUA("LUA", "print(\"Hello, world!\")", "lua");
 
     private final String name, sample;
     private final ScriptEngine engine;
