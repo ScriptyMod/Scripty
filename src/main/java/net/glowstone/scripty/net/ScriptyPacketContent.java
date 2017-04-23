@@ -13,6 +13,7 @@ public class ScriptyPacketContent implements IMessage {
     private BlockPos pos;
     private String content;
     private ScriptLanguage language;
+    private boolean parsing;
 
     public ScriptyPacketContent() {
     }
@@ -21,6 +22,14 @@ public class ScriptyPacketContent implements IMessage {
         this.pos = pos;
         this.content = content;
         this.language = language;
+        this.parsing = false;
+    }
+
+    public ScriptyPacketContent(BlockPos pos, String content, ScriptLanguage language, boolean parsing) {
+        this.pos = pos;
+        this.content = content;
+        this.language = language;
+        this.parsing = parsing;
     }
 
     @Override
@@ -33,10 +42,12 @@ public class ScriptyPacketContent implements IMessage {
         int contentLength = buffer.readVarInt();
         String content = buffer.readString(contentLength);
         int languageId = buffer.readByte();
+        boolean parsing = buffer.readBoolean();
         ScriptLanguage language = ScriptLanguage.values()[languageId];
         setContent(content);
         setLanguage(language);
         setPos(pos);
+        setParsing(parsing);
     }
 
     @Override
@@ -48,6 +59,7 @@ public class ScriptyPacketContent implements IMessage {
         buffer.writeVarInt(content.length());
         buffer.writeString(content);
         buffer.writeByte(language.ordinal());
+        buffer.writeBoolean(parsing);
     }
 
     public String getContent() {
@@ -72,6 +84,14 @@ public class ScriptyPacketContent implements IMessage {
 
     public void setPos(BlockPos pos) {
         this.pos = pos;
+    }
+
+    public boolean isParsing() {
+        return parsing;
+    }
+
+    public void setParsing(boolean parsing) {
+        this.parsing = parsing;
     }
 
     public static class HandlerClient implements IMessageHandler<ScriptyPacketContent, IMessage> {

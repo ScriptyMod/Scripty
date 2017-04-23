@@ -16,8 +16,9 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
+
+import javax.script.ScriptEngineManager;
 
 @Mod(modid = "scripty", version = "0.0.1")
 public class ScriptyMod {
@@ -26,6 +27,8 @@ public class ScriptyMod {
     @SidedProxy(clientSide = "net.glowstone.scripty.gui.ScriptyGUI$Client", serverSide = "net.glowstone.scripty.gui.ScriptyGUI$Common")
     private static ScriptyGUI.Common gui;
     public static ScriptyMod INSTANCE;
+
+    public static final ScriptEngineManager ENGINE_MANAGER = new ScriptEngineManager();
 
     @EventHandler
     public void preinit(FMLPreInitializationEvent event) {

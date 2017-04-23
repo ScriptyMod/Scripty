@@ -3,7 +3,6 @@ package net.glowstone.scripty.gui;
 import net.glowstone.scripty.ScriptLanguage;
 import net.glowstone.scripty.net.ScriptyNetworkHandler;
 import net.glowstone.scripty.net.ScriptyPacketContent;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.math.BlockPos;
@@ -17,13 +16,15 @@ public class ScriptyBlockGUI extends GuiScreen {
 
     private static final String SAVE_CHANGES = "Save changes";
     private static final String SAVE_CHANGES_LIVE = new TextComponentString(SAVE_CHANGES).setStyle(new Style().setColor(TextFormatting.YELLOW)).getFormattedText();
+    private static final String SAVE_CHANGES_PARSING = "Parsing...";
 
     private BlockPos pos;
     private String content;
     private ScriptLanguage language;
 
-    // buttons
+    private boolean parsing = false;
     private boolean changes = false;
+    // buttons
     private GuiButton languageToggle;
     private GuiButton saveButton;
 
@@ -73,6 +74,11 @@ public class ScriptyBlockGUI extends GuiScreen {
     }
 
     @Override
+    public void onGuiClosed() {
+        ScriptyNetworkHandler.sendCloseMessage(pos);
+    }
+
+    @Override
     protected void actionPerformed(GuiButton button) throws IOException {
         if (button.id == languageToggle.id) {
             int ordinal = language.ordinal() + 1;
@@ -83,10 +89,11 @@ public class ScriptyBlockGUI extends GuiScreen {
             changes = true;
         } else if (button.id == saveButton.id) {
             if (changes) {
-                ScriptyNetworkHandler.sendContentUpdate(new ScriptyPacketContent(pos, content, language));
+                // ScriptyNetworkHandler.sendContentUpdate(new ScriptyPacketContent(pos, content, language)); todo: send out content from code field
+                ScriptyNetworkHandler.sendContentUpdate(new ScriptyPacketContent(pos, language.getSample(), language));
+                setParsing(true);
+                changes = false;
             }
-            Minecraft.getMinecraft().displayGuiScreen(null);
-            return;
         }
         if (changes) {
             saveButton.displayString = SAVE_CHANGES_LIVE;
@@ -98,5 +105,16 @@ public class ScriptyBlockGUI extends GuiScreen {
         drawDefaultBackground();
         this.drawString(this.fontRendererObj, "Script Block", 50, 30 - 4, 0xffffff);
         super.drawScreen(mouseX, mouseY, partialTicks);
+    }
+
+    public void setParsing(boolean parsing) {
+        this.parsing = parsing;
+        if (parsing) {
+            saveButton.displayString = SAVE_CHANGES_PARSING;
+            saveButton.enabled = false;
+        } else {
+            saveButton.displayString = SAVE_CHANGES;
+            saveButton.enabled = true;
+        }
     }
 }

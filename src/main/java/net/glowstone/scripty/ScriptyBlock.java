@@ -1,5 +1,8 @@
 package net.glowstone.scripty;
 
+import com.google.common.util.concurrent.FutureCallback;
+import com.google.common.util.concurrent.Futures;
+import com.google.common.util.concurrent.ListenableFuture;
 import net.glowstone.scripty.net.ScriptyNetworkHandler;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.MapColor;
@@ -18,6 +21,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import javax.annotation.Nullable;
+import javax.script.ScriptException;
 
 public class ScriptyBlock extends BlockContainer {
 
@@ -63,15 +67,14 @@ public class ScriptyBlock extends BlockContainer {
 
         private String content;
         private ScriptLanguage language;
+        private EntityPlayer owner;
+        private boolean parsing;
 
         public TEScriptyBlock() {
             this.content = "";
             this.language = ScriptLanguage.PYTHON;
-        }
-
-        public TEScriptyBlock(String content, ScriptLanguage language) {
-            this.content = content;
-            this.language = language;
+            this.parsing = false;
+            this.owner = null;
         }
 
         @Override
@@ -105,9 +108,63 @@ public class ScriptyBlock extends BlockContainer {
             this.language = language;
         }
 
+        public boolean isParsing() {
+            return parsing;
+        }
+
+        public void setParsing(boolean parsing) {
+            this.parsing = parsing;
+        }
+
+        public EntityPlayer getOwner() {
+            return owner;
+        }
+
+        public void setOwner(EntityPlayer owner) {
+            this.owner = owner;
+        }
+
         @Override
         public boolean onlyOpsCanSetNbt() {
             return true;
+        }
+
+        public void parse() {
+            if (isParsing() || owner == null) {
+                System.out.println("not parsing because no owner/already parsing");
+                return;
+            }
+            setParsing(true);
+            ListenableFuture<Object> future = owner.getServer().addScheduledTask(() -> {
+                try {
+                    String content = getContent();
+                    ScriptLanguage language = getLanguage();
+                    if (language.getEngine() == null) {
+                        System.out.println("WARNING: " + language + " has no engine associated.");
+                    } else {
+                        language.getEngine().eval(content);
+                    }
+                } catch (ScriptException e) {
+                    throw new RuntimeException(e);
+                }
+            });
+            Futures.addCallback(future, new FutureCallback<Object>() {
+                @Override
+                public void onSuccess(@Nullable Object result) {
+                    setParsing(false);
+                    if (owner != null) {
+                        ScriptyNetworkHandler.sendContentMessage((EntityPlayerMP) owner, pos, content, language, parsing);
+                    }
+                }
+
+                @Override
+                public void onFailure(Throwable t) {
+                    setParsing(false);
+                    if (owner != null) {
+                        ScriptyNetworkHandler.sendContentMessage((EntityPlayerMP) owner, pos, content, language, parsing);
+                    }
+                }
+            });
         }
     }
 }
